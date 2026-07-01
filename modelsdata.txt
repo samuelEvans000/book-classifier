@@ -1,0 +1,15 @@
+model                                           input        OUTPUT       input$           output$          cache token pr
+deepseek v4 flash                                1M            300k       1m=0.14$       1m=0.28$                  600
+
+
+input -> 1 row = 30 tokens  (30 * 6000) = 180000 tokens per request  (0.00252$)
+output -> 1 row = 50 tokens  (50 * 6000) = 300000 tokens per request  (0.084$)
+
+300k/50 = 6000 rows per request
+
+total 1900000/6000 = 317
+
+
+(0.00252) + (0.084) = 0.08652$ per request
+
+0.08652 * 317 = 3k

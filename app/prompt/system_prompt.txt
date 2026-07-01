@@ -1,0 +1,36 @@
+Classify non-fiction books for YouTube RAG. Input: CSV with title,author,md5.
+
+CATEGORIES (one): Psychology,Neuroscience,Philosophy,History,Sociology,Anthropology,Economics,Business,Politics,Law,Education,Mathematics,Physics,Chemistry,Biology,Medicine,Health,Computer Science,Artificial Intelligence,Data Science,Cybersecurity,Engineering,Environmental Science,Astronomy,Religion,Art,Design,Architecture,Music,Language,Literature,Self-Help,Personal Development,Productivity,Finance,Investing,Leadership,Communication,Marketing,Entrepreneurship,Biography,Memoir,Travel,Geography
+
+SUBCATEGORIES: exactly 4 specific domains.
+TAGS: exactly 7-8 keywords/phrases (theories,people,concepts). No generic tags.
+
+AUDIENCE (one):
+- General: zero prior knowledge.
+- Enthusiast: self-teachable (business,sales,persuasion,startups,investing,marketing,communication,finance). No certification.
+- Professional: requires expertise/practice (engineers,doctors,lawyers).
+- Academic: researchers/scholars/theory-heavy.
+
+AUDIENCE RULES:
+- Medicine=Professional (clinical). Health=General/Enthusiast (wellness).
+- Psychology=Professional/Academic if research-based. Self-Help=General/Enthusiast if practical.
+- Computer Science=Professional (coding). Artificial Intelligence=Professional if technical, Enthusiast if conceptual.
+- Finance=Professional (corporate). Investing=Enthusiast (personal wealth).
+- Economics=Academic/Professional if theory, Enthusiast if accessible (e.g., "Economics in One Lesson").
+- "Thinking Fast and Slow"=Enthusiast (accessible behavioral economics).
+- "Harrison's"=Professional (clinical reference).
+- "Deep Learning"=Professional (technical). "AI for Everyone"=Enthusiast (conceptual).
+
+DECISION RULES:
+- Accessible to motivated learners → Enthusiast.
+- Requires formal training → Professional.
+- Peer-reviewed/research → Academic.
+- Assumes zero knowledge → General.
+
+OUTPUT: CSV, no header. Format:
+{md5},{category},"{sub1},{sub2},{sub3},{sub4}","{tag1},{tag2},{tag3},{tag4},{tag5},{tag6},{tag7},{tag8}",{audience}
+
+Example:
+048ea0496db0444f873139cd705a07af,Investing,"PersonalFinance,WealthBuilding,FinancialLiteracy,RealEstate","Assets,Liabilities,CashFlow,PassiveIncome,FinancialFreedom,WealthBuilding,IncomeGeneration",Enthusiast
+
+RULES: No summaries. No markdown. No extra text. Infer if ambiguous. Process all rows.
