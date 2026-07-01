@@ -1,36 +1,45 @@
-Classify non-fiction books for YouTube RAG. Input: CSV with title,author,md5.
-
-CATEGORIES (one): Psychology,Neuroscience,Philosophy,History,Sociology,Anthropology,Economics,Business,Politics,Law,Education,Mathematics,Physics,Chemistry,Biology,Medicine,Health,Computer Science,Artificial Intelligence,Data Science,Cybersecurity,Engineering,Environmental Science,Astronomy,Religion,Art,Design,Architecture,Music,Language,Literature,Self-Help,Personal Development,Productivity,Finance,Investing,Leadership,Communication,Marketing,Entrepreneurship,Biography,Memoir,Travel,Geography
-
-SUBCATEGORIES: exactly 4 specific domains.
-TAGS: exactly 7-8 keywords/phrases (theories,people,concepts). No generic tags.
-
-AUDIENCE (one):
-- General: zero prior knowledge.
-- Enthusiast: self-teachable (business,sales,persuasion,startups,investing,marketing,communication,finance). No certification.
-- Professional: requires expertise/practice (engineers,doctors,lawyers).
-- Academic: researchers/scholars/theory-heavy.
-
-AUDIENCE RULES:
-- Medicine=Professional (clinical). Health=General/Enthusiast (wellness).
-- Psychology=Professional/Academic if research-based. Self-Help=General/Enthusiast if practical.
-- Computer Science=Professional (coding). Artificial Intelligence=Professional if technical, Enthusiast if conceptual.
-- Finance=Professional (corporate). Investing=Enthusiast (personal wealth).
-- Economics=Academic/Professional if theory, Enthusiast if accessible (e.g., "Economics in One Lesson").
-- "Thinking Fast and Slow"=Enthusiast (accessible behavioral economics).
-- "Harrison's"=Professional (clinical reference).
-- "Deep Learning"=Professional (technical). "AI for Everyone"=Enthusiast (conceptual).
-
-DECISION RULES:
-- Accessible to motivated learners → Enthusiast.
-- Requires formal training → Professional.
-- Peer-reviewed/research → Academic.
-- Assumes zero knowledge → General.
-
+Classify non-fiction books for YouTube RAG. Input: CSV with serial_id,title,author.
+CATEGORIES (choose best fit from training data. Not limited to list):
+Psychology,Neuroscience,Philosophy,History,Sociology,Anthropology,Economics,Business,Politics,Law,Education,Mathematics,Physics,Chemistry,Biology,Medicine,Health,ComputerScience,ArtificialIntelligence,DataScience,Cybersecurity,Engineering,EnvironmentalScience,Astronomy,Religion,Art,Design,Architecture,Music,Language,Literature,SelfHelp,PersonalDevelopment,Productivity,Finance,Investing,Leadership,Communication,Marketing,Entrepreneurship,Biography,Memoir,Travel,Geography
+SUBCATEGORIES: exactly 10 specific topics representing learning outcomes, skills, or knowledge a reader gains.
+SELECTION CRITERION (Audience-First):
+- What will the reader be able to do, understand, or apply after reading?
+- What practical skills or competencies does the book teach?
+- What concepts, frameworks, or theories will the reader understand?
+- For Enthusiast: Focus on actionable skills, frameworks, practical applications.
+- For Professional/Academic: Focus on technical knowledge, methodologies, specialized concepts.
+- For General: Focus on foundational understanding, accessible takeaways.
+EXAMPLES (10 subcategories):
+- "Rich Dad Poor Dad" (Enthusiast): Assets,Liabilities,PassiveIncome,RealEstate,FinancialLiteracy,WealthBuilding,CashFlow,MoneyMindset,Investment,Business
+- "The Lean Startup" (Enthusiast): MinimumViableProduct,Pivot,BuildMeasureLearn,Agile,Validation,CustomerDevelopment,Innovation,ProductMarketFit,Experimentation,Iteration
+- "Thinking Fast and Slow" (Enthusiast): CognitiveBiases,DecisionScience,System1System2,ProspectTheory,Heuristics,BehavioralEconomics,Judgment,ChoiceArchitecture,Rationality,Intuition
+- "Harrison's" (Professional): ClinicalDiagnosis,Pathophysiology,Pharmacology,PatientCare,EvidenceBasedMedicine,MedicalProtocols,InternalMedicine,DifferentialDiagnosis,Therapeutics,ClinicalGuidelines
+AUDIENCE (choose one):
+- General: zero prior knowledge. Broad public understanding.
+- Enthusiast: self-teachable, practical, actionable. No certification. LEAN TOWARD THIS WHEN UNCERTAIN.
+- Professional: ONLY for books written exclusively for licensed practitioners (surgeons, lawyers, engineers) where public consumption is risky or impossible.
+- Academic: ONLY for peer-reviewed research, textbooks, or theory-heavy content with no practical application.
+AUDIENCE CLASSIFICATION RULES (Critical - Lean Enthusiast):
+- If a book can be understood or applied by a motivated learner → Enthusiast.
+- If a book contains insights valuable to general audience despite technical depth → Enthusiast.
+- ONLY mark Professional if: the book requires formal licensing, certification, or supervised practice to safely apply.
+- ONLY mark Academic if: the book is purely theoretical research with no practical takeaways.
+- Medicine: Clinical diagnosis/treatment textbooks → Professional. Health/wellness → Enthusiast.
+- Psychology: Research papers → Academic. Accessible behavioral economics → Enthusiast.
+- Computer Science: Coding/manuals → Professional. AI concepts → Enthusiast.
+- Finance: Corporate finance textbooks → Professional. Personal investing/wealth → Enthusiast.
+- Economics: Academic theory → Academic. Accessible economics → Enthusiast.
+- Engineering: Technical manuals → Professional. Innovation/design thinking → Enthusiast.
+EXAMPLES OF LEANING ENTHUSIAST:
+- "Thinking Fast and Slow" → Enthusiast (accessible, valuable insights for all)
+- "The Lean Startup" → Enthusiast (actionable, no certification needed)
+- "AI for Everyone" → Enthusiast (conceptual, no coding required)
+- "Deep Learning" (Goodfellow) → Professional (requires coding/ML expertise)
+- "Harrison's" → Professional (clinical practice, risky if misapplied)
+- "Economics in One Lesson" → Enthusiast (accessible economic principles)
+WEIGHTAGE: 60% learning outcomes/skills, 30% knowledge areas, 10% context/people.
 OUTPUT: CSV, no header. Format:
-{md5},{category},"{sub1},{sub2},{sub3},{sub4}","{tag1},{tag2},{tag3},{tag4},{tag5},{tag6},{tag7},{tag8}",{audience}
-
+{md5},{category},"{sub1},{sub2},{sub3},{sub4},{sub5},{sub6},{sub7},{sub8},{sub9},{sub10}",{audience}
 Example:
-048ea0496db0444f873139cd705a07af,Investing,"PersonalFinance,WealthBuilding,FinancialLiteracy,RealEstate","Assets,Liabilities,CashFlow,PassiveIncome,FinancialFreedom,WealthBuilding,IncomeGeneration",Enthusiast
-
-RULES: No summaries. No markdown. No extra text. Infer if ambiguous. Process all rows.
+1001,Investing,"Assets,Liabilities,PassiveIncome,RealEstate,FinancialLiteracy,WealthBuilding,CashFlow,MoneyMindset,Investment,Business",Enthusiast
+RULES: No summaries. No markdown. No extra text. Infer if ambiguous. Use any category from training data. Process all rows.

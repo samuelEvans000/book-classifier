@@ -43,8 +43,6 @@ from app.utils.helpers import human_time, eta
 console = Console()
 
 
-
-
 async def main() -> None:
     start_time = time.time()
     config.validate()

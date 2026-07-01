@@ -1,6 +1,9 @@
 """
 Parses and validates the raw CSV text returned by an LLM provider
 into a list of Classification objects.
+
+Expected format (4 columns, no tags):
+  {serial_id},{category},"{sub1},{sub2},{sub3},{sub4},{sub5},{sub6}",{audience}
 """
 
 import csv
@@ -15,10 +18,8 @@ from app.utils.logger import logger
 def _clean_response(raw: str) -> str:
     """Strip markdown fences, BOM, leading/trailing whitespace."""
     text = raw.strip()
-    # Remove ```csv ... ``` or ``` ... ```
     text = re.sub(r"^```[a-z]*\n?", "", text, flags=re.IGNORECASE)
     text = re.sub(r"\n?```$", "", text, flags=re.IGNORECASE)
-    # Remove BOM
     text = text.lstrip("\ufeff")
     return text.strip()
 
@@ -29,8 +30,6 @@ def parse_response(raw: str, expected_md5s: list[str]) -> tuple[list[Classificat
 
     Returns:
         (classifications, failed_md5s)
-        - classifications: successfully parsed items
-        - failed_md5s: md5s we couldn't parse (need retry)
     """
     text = _clean_response(raw)
     if not text:
@@ -44,48 +43,57 @@ def parse_response(raw: str, expected_md5s: list[str]) -> tuple[list[Classificat
     try:
         reader = csv.reader(io.StringIO(text))
         for line_no, row in enumerate(reader, 1):
-            if not row or len(row) < 5:
-                if row:  # not a blank line
-                    errors.append(f"Line {line_no}: too few columns: {row}")
+            if not row:
                 continue
 
-            md5 = row[0].strip()
-            main_category = row[1].strip()
-            subcategories_raw = row[2].strip()
-            tags_raw = row[3].strip()
-            audience = row[4].strip()
+            # New format: 4 columns — serial_id, category, subcategories, audience
+            # Old format: 5 columns — md5, category, subcategories, tags, audience
+            # Support both so old checkpoints/partial outputs still work.
+            if len(row) == 4:
+                serial_id   = row[0].strip()
+                category    = row[1].strip()
+                subs_raw    = row[2].strip()
+                audience    = row[3].strip()
+            elif len(row) == 5:
+                # legacy 5-column format — tags in position 3, drop them
+                serial_id   = row[0].strip()
+                category    = row[1].strip()
+                subs_raw    = row[2].strip()
+                # row[3] = tags (ignored)
+                audience    = row[4].strip()
+            else:
+                if row:
+                    errors.append(f"Line {line_no}: expected 4 columns, got {len(row)}: {row}")
+                continue
 
-            subcategories = [s.strip() for s in subcategories_raw.split(",") if s.strip()]
-            tags = [t.strip() for t in tags_raw.split(",") if t.strip()]
+            subcategories = [s.strip() for s in subs_raw.split(",") if s.strip()]
 
             try:
                 c = Classification(
-                    md5=md5,
-                    main_category=main_category,
+                    md5=serial_id,
+                    main_category=category,
                     subcategories=subcategories,
-                    tags=tags,
                     target_audience=audience,
                 )
                 classifications.append(c)
-                parsed_md5s.add(md5)
+                parsed_md5s.add(serial_id)
             except Exception as e:
-                errors.append(f"Line {line_no} (md5={md5}): validation error — {e}")
+                errors.append(f"Line {line_no} (id={serial_id}): {e}")
 
     except Exception as e:
         logger.error(f"CSV parse error: {e}\nRaw snippet: {text[:300]}")
         return [], list(expected_md5s)
 
     if errors:
-        for err in errors[:10]:  # cap log spam
+        for err in errors[:10]:
             logger.debug(f"Parse issue: {err}")
         if len(errors) > 10:
             logger.debug(f"... and {len(errors) - 10} more parse issues")
 
-    failed = [md5 for md5 in expected_md5s if md5 not in parsed_md5s]
+    failed = [m for m in expected_md5s if m not in parsed_md5s]
     return classifications, failed
 
 
 def parse_single(raw: str, md5: str) -> Optional[Classification]:
-    """Parse a single-book response (used in fallback/retry path)."""
     results, _ = parse_response(raw, [md5])
     return results[0] if results else None

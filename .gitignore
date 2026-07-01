@@ -1,0 +1,46 @@
+# Flask-specific files
+instance/
+.webassets-cache
+
+# Environment variables & secrets
+.env
+.flaskenv
+*.env
+
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python byte-code and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local databases (SQLite)
+*.db
+*.sqlite3
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+
+# Log files
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors (Optional but highly recommended)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln

@@ -1,81 +1,9 @@
-2026-06-30 18:07:09,941 [INFO] classifier: Input:   data/books.csv
-2026-06-30 18:07:09,943 [INFO] classifier: Output:  output/classified.csv
-2026-06-30 18:07:09,943 [INFO] classifier: Workers: 2  |  Batch size: 100
-2026-06-30 18:07:09,945 [INFO] classifier: Total already done: 0
-2026-06-30 18:07:09,946 [INFO] classifier: Counting input rows…
-2026-06-30 18:07:09,948 [INFO] classifier: Total rows in input: 300
-2026-06-30 18:07:09,956 [INFO] classifier: Books to classify: 300  |  Already done (skipped): 0
-2026-06-30 18:07:09,957 [INFO] classifier: Provider registered: deepseek @ 60 RPM
-2026-06-30 18:07:09,958 [INFO] classifier: Provider registered: sambanova @ 10 RPM
-2026-06-30 18:07:09,960 [INFO] classifier: Provider registered: gemini @ 15 RPM
-2026-06-30 18:07:09,961 [INFO] classifier: Provider registered: cerebras @ 5 RPM
-2026-06-30 18:07:09,962 [INFO] classifier: Provider registered: openrouter @ 20 RPM
-2026-06-30 18:07:09,962 [INFO] classifier: Load balancer ready with 5 provider(s).
-2026-06-30 18:07:09,965 [INFO] classifier: Queue filled: 3 batches enqueued.
-2026-06-30 18:09:08,237 [DEBUG] classifier: [deepseek] cache hit=0 miss=3344 (0% hit rate)
-2026-06-30 18:09:08,241 [DEBUG] classifier: [deepseek] batch=100 ok=100 failed=0
-2026-06-30 18:09:12,810 [DEBUG] classifier: [deepseek] cache hit=0 miss=3680 (0% hit rate)
-2026-06-30 18:09:12,813 [DEBUG] classifier: Parse issue: Line 6 (md5=6): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'EnvironmentalScience' [type=value_error, input_value='EnvironmentalScience', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,813 [DEBUG] classifier: Parse issue: Line 8 (md5=8): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'ComputerScience' [type=value_error, input_value='ComputerScience', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,813 [DEBUG] classifier: Parse issue: Line 15 (md5=15): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'ComputerScience' [type=value_error, input_value='ComputerScience', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,813 [DEBUG] classifier: Parse issue: Line 23 (md5=23): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'ComputerScience' [type=value_error, input_value='ComputerScience', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,814 [DEBUG] classifier: Parse issue: Line 27 (md5=27): validation error — 1 validation error for Classification
-tags
-  Value error, Expected 7-8 tags, got 9 [type=value_error, input_value=['Bonds', 'FixedIncome', ...gageBacked', 'Strategy'], input_type=list]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,814 [DEBUG] classifier: Parse issue: Line 42 (md5=42): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'ComputerScience' [type=value_error, input_value='ComputerScience', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,814 [DEBUG] classifier: Parse issue: Line 59 (md5=59): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'ComputerScience' [type=value_error, input_value='ComputerScience', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,814 [DEBUG] classifier: Parse issue: Line 61 (md5=61): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'ComputerScience' [type=value_error, input_value='ComputerScience', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,814 [DEBUG] classifier: Parse issue: Line 72 (md5=72): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'SelfHelp' [type=value_error, input_value='SelfHelp', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,814 [DEBUG] classifier: Parse issue: Line 74 (md5=74): validation error — 1 validation error for Classification
-main_category
-  Value error, Unknown main category: 'SelfHelp' [type=value_error, input_value='SelfHelp', input_type=str]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:09:12,814 [DEBUG] classifier: ... and 2 more parse issues
-2026-06-30 18:09:12,814 [DEBUG] classifier: [deepseek] batch=100 ok=88 failed=12
-2026-06-30 18:09:39,233 [DEBUG] classifier: [deepseek] cache hit=512 miss=448 (53% hit rate)
-2026-06-30 18:09:39,234 [DEBUG] classifier: Parse issue: Line 12: too few columns: ['12', 'Self-Help', 'Positivity,Gratitude,Mindfulness,Happiness', 'Gratitude,Happiness,Positive Psychology,Joy,Contentment,Optimism,App']
-2026-06-30 18:09:39,235 [DEBUG] classifier: [deepseek] batch=12 ok=11 failed=1
-2026-06-30 18:09:44,621 [DEBUG] classifier: [deepseek] cache hit=512 miss=123 (81% hit rate)
-2026-06-30 18:09:44,624 [WARNING] classifier: Empty response from provider
-2026-06-30 18:09:44,625 [DEBUG] classifier: [deepseek] batch=1 ok=0 failed=1
-2026-06-30 18:09:44,625 [WARNING] classifier: [worker-0] Permanently failed: 01bc46fc914e4eb213afb67bbbfad506 | 14,000 Things to Be Happy About.: Newly Revised and Updated
-2026-06-30 18:11:29,754 [DEBUG] classifier: [deepseek] cache hit=0 miss=3506 (0% hit rate)
-2026-06-30 18:11:29,758 [DEBUG] classifier: Parse issue: Line 37 (md5=37): validation error — 1 validation error for Classification
-tags
-  Value error, Expected 7-8 tags, got 9 [type=value_error, input_value=['economic thinkers', 'Ad...my', 'Great Economists'], input_type=list]
-    For further information visit https://errors.pydantic.dev/2.11/v/value_error
-2026-06-30 18:11:29,758 [DEBUG] classifier: [deepseek] batch=100 ok=99 failed=1
-2026-06-30 18:11:35,833 [DEBUG] classifier: [deepseek] cache hit=512 miss=131 (80% hit rate)
-2026-06-30 18:11:35,834 [WARNING] classifier: Empty response from provider
-2026-06-30 18:11:35,837 [DEBUG] classifier: [deepseek] batch=1 ok=0 failed=1
-2026-06-30 18:11:42,200 [DEBUG] classifier: [deepseek] cache hit=640 miss=3 (100% hit rate)
-2026-06-30 18:11:42,204 [WARNING] classifier: Empty response from provider
-2026-06-30 18:11:42,207 [DEBUG] classifier: [deepseek] batch=1 ok=0 failed=1
-2026-06-30 18:11:42,207 [WARNING] classifier: [worker-1] Permanently failed: b8ee6cff306d2b3e62e5f5232f7717b0 | The Worldly Philosophers: The Lives, Times and Ideas of the Great Economic Thinkers (7th Edition)
-2026-06-30 18:11:42,692 [INFO] classifier: Output validation: 297/298 valid (99.7%) | bad_category=0 bad_subs=0 bad_tags=0 bad_audience=0 dupes=1
-2026-07-01 11:40:47,124 [INFO] classifier: Provider registered: deepseek @ 60 RPM
+2026-07-01 13:53:03,681 [INFO] classifier: Input:   data/books_0001.csv
+2026-07-01 13:53:03,683 [INFO] classifier: Output:  output/classified.csv
+2026-07-01 13:53:03,684 [INFO] classifier: Workers: 10  |  Batch size: 100
+2026-07-01 13:53:03,685 [INFO] classifier: Total already done: 0
+2026-07-01 13:53:03,687 [INFO] classifier: Counting input rows…
+2026-07-01 13:53:03,690 [INFO] classifier: Total rows in input: 999
+2026-07-01 13:53:03,704 [INFO] classifier: Books to classify: 999  |  Already done (skipped): 0
+2026-07-01 13:53:03,707 [INFO] classifier: Provider registered: deepseek @ 60 RPM
+2026-07-01 13:53:03,714 [INFO] classifier: Queue filled: 10 batches enqueued.

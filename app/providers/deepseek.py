@@ -1,12 +1,14 @@
 """
 DeepSeek provider using their OpenAI-compatible API.
+Model: deepseek-v4-flash
 
-Model: deepseek-v4-flash (explicit name — the legacy 'deepseek-chat' alias
-retires 2026-07-24, so we call the real model name directly).
+Token snowball fix:
+  - messages list built fresh every call — never mutated across calls
+  - max_tokens calculated per batch size — hard ceiling prevents runaway output
+  - stream=False explicitly set
 
-Caching: DeepSeek's disk-based context cache is automatic. It matches on
-exact prefix, so our system prompt (loaded once, byte-identical every call)
-gets cached and only the per-batch book list is billed at full rate.
+Caching: automatic disk-based context cache. System prompt is byte-identical
+every call so cache hits after the first request. Cache hits cost ~98% less.
 """
 
 from app.config import config
@@ -23,7 +25,7 @@ from app.utils.llm_logger import llm_logger
 
 class DeepSeekProvider(BaseProvider):
     name = "deepseek"
-    MODEL = "deepseek-v4-flash"          # explicit name, not the retiring alias
+    MODEL = "deepseek-v4-flash"
     BASE_URL = "https://api.deepseek.com/v1"
 
     def __init__(self):
@@ -50,70 +52,64 @@ class DeepSeekProvider(BaseProvider):
     @async_retry(min_wait=3.0, max_wait=60.0)
     async def classify_batch(self, books: list[Book]) -> tuple[list[Classification], list[str]]:
         client = self._get_client()
+
+        # Fresh messages list every call — prevents output token snowballing
         prompt = build_user_prompt(books)
         expected_md5s = [b.md5 for b in books]
+        sys_prompt = get_system_prompt()
 
-        out_tokens_limit = max_output_tokens(len(books))
         response = await client.chat.completions.create(
             model=self.MODEL,
             messages=[
-                {"role": "system", "content": get_system_prompt()},
-                {"role": "user", "content": prompt},
+                {"role": "system", "content": sys_prompt},
+                {"role": "user",   "content": prompt},
             ],
             temperature=0.1,
-            max_tokens=out_tokens_limit,
+            max_tokens=max_output_tokens(len(books)),
+            stream=False,
         )
 
-        # Log cache hit/miss so we can verify caching is actually engaging.
-        # DeepSeek returns prompt_cache_hit_tokens / prompt_cache_miss_tokens
-        # in usage when context caching is active.
-        in_tokens = 0
-        out_tokens = 0
+        # Extract usage — DeepSeek returns cache hit/miss breakdown
+        in_tokens = out_tokens = cache_hit = cache_miss = 0
         usage = getattr(response, "usage", None)
         if usage:
-            hit = getattr(usage, "prompt_cache_hit_tokens", 0) or 0
-            miss = getattr(usage, "prompt_cache_miss_tokens", 0) or 0
-            total = hit + miss
-            self._total_hit += hit
-            self._total_miss += miss
+            cache_hit  = getattr(usage, "prompt_cache_hit_tokens",  0) or 0
+            cache_miss = getattr(usage, "prompt_cache_miss_tokens", 0) or 0
+            in_tokens  = getattr(usage, "prompt_tokens",            0) or 0
+            out_tokens = getattr(usage, "completion_tokens",        0) or 0
+
+            self._total_hit  += cache_hit
+            self._total_miss += cache_miss
             self._call_count += 1
 
-            in_tokens = getattr(usage, "prompt_tokens", 0) or 0
-            out_tokens = getattr(usage, "completion_tokens", 0) or 0
-
-            if total > 0:
-                pct = (hit / total) * 100
-                logger.debug(
-                    f"[deepseek] cache hit={hit} miss={miss} ({pct:.0f}% hit rate)"
-                )
-
-            # Every 20 calls, log a running summary so you can see the
-            # cache warming up over the course of the run.
             if self._call_count % 20 == 0:
-                grand_total = self._total_hit + self._total_miss
-                if grand_total > 0:
-                    running_pct = (self._total_hit / grand_total) * 100
+                grand = self._total_hit + self._total_miss
+                if grand > 0:
                     logger.info(
-                        f"[deepseek] running cache hit rate: {running_pct:.0f}% "
-                        f"over {self._call_count} calls "
-                        f"({self._total_hit:,} hit / {self._total_miss:,} miss tokens)"
+                        f"[deepseek] cache hit rate: {self._total_hit/grand*100:.0f}% "
+                        f"over {self._call_count} calls"
                     )
 
         raw = response.choices[0].message.content or ""
 
+        # Fall back to estimates if API didn't return usage
         if not in_tokens:
-            in_tokens = estimate_tokens(get_system_prompt() + prompt)
+            in_tokens = estimate_tokens(sys_prompt + prompt)
         if not out_tokens:
             out_tokens = estimate_tokens(raw)
 
+        # Log to token tracker
         await llm_logger.log_call(
             provider=self.name,
             model=self.MODEL,
-            system_prompt=get_system_prompt(),
+            system_prompt=sys_prompt,
             user_prompt=prompt,
             raw_output=raw,
             in_tokens=in_tokens,
-            out_tokens=out_tokens
+            out_tokens=out_tokens,
+            cache_hit_tokens=cache_hit,
+            cache_miss_tokens=cache_miss,
+            books_in_batch=len(books),
         )
 
         classifications, failed = parse_response(raw, expected_md5s)
